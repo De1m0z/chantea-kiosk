@@ -11,6 +11,7 @@ use App\Http\Controllers\ModifierController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KitchenController;
+use App\Http\Controllers\VoiceOrderController;
 use App\Http\Controllers\Api\AuthController;
 use App\Models\ModifierGroup;
 use App\Models\Order;
@@ -93,6 +94,12 @@ Route::prefix('v1')->group(function () {
 
     Route::get('dashboard/daily-sales', [DashboardController::class, 'dailySales']);
     Route::get('dashboard/daily-sales/details', [DashboardController::class, 'dailySalesDetails']);
+
+    // =============================================
+    // VOICE ORDER (AI-powered)
+    // =============================================
+
+    Route::post('voice-order', [VoiceOrderController::class, 'process']);
 });
 
 // =============================================
