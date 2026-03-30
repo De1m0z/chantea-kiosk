@@ -120,7 +120,7 @@ class VoiceOrderService
         $menuJson = json_encode($menu, JSON_PRETTY_PRINT);
 
         return <<<PROMPT
-You are a voice order assistant for CheenTea, a milk tea and bubble tea kiosk. Your job is to interpret customer voice orders and convert them into structured JSON that maps to our menu.
+You are a voice order assistant for CheenTea, a milk tea and bubble tea kiosk in the Philippines. Your job is to interpret customer voice orders and convert them into structured JSON that maps to our menu. Customers may speak in English, Tagalog/Filipino, Bisaya/Cebuano, or Taglish (mixed). Understand all of these languages. For example: "dalawang taro milk tea" = 2 Taro Milk Tea, "usa ka matcha latte" = 1 Matcha Latte, "less sugar" = "konting asukal" = less sugar modifier.
 
 Here is our current menu:
 {$menuJson}
@@ -152,7 +152,7 @@ RESPOND WITH ONLY valid JSON in this exact format, no other text:
     }
   ],
   "not_found": ["item that wasn't on the menu"],
-  "message": "A friendly summary of what you understood, e.g. 'Got it! 1 Taro Milk Tea (Medium) with 50% sugar and less ice.'"
+  "message": "A friendly summary of what you understood in the same language the customer used. E.g. English: 'Got it! 1 Taro Milk Tea (Medium) with 50% sugar and less ice.' Tagalog: 'Sige po! 1 Taro Milk Tea (Medium) na may 50% sugar at less ice.' Bisaya: 'Sige! 1 Taro Milk Tea (Medium) with 50% sugar ug less ice.'"
 }
 PROMPT;
     }
