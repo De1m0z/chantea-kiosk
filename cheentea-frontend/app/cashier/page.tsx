@@ -31,6 +31,7 @@ import { updateOrderStatus } from "@/lib/api"
 import { Order } from "@/lib/types"
 import { formatPrice } from "@/lib/format"
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders"
+import { sitePath } from "@/lib/site-path"
 
 export default function CashierPage() {
     // Real-time orders with WebSocket connection
@@ -181,7 +182,7 @@ export default function CashierPage() {
                         <div className="flex items-center gap-5">
                             <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-premium group cursor-pointer transition-transform hover:scale-105">
                                 <Image
-                                    src="/chantea-logo.jpg"
+                                    src={sitePath("/chantea-logo.jpg")}
                                     alt="Chantea"
                                     fill
                                     className="object-cover"

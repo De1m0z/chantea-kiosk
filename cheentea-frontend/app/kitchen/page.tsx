@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { RefreshCw, Loader2, CheckCircle, Coffee, Bell, ChefHat } from "lucide-react"
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders"
 import Image from "next/image"
+import { sitePath } from "@/lib/site-path"
 
 /**
  * Customer-facing Pickup Display
@@ -51,7 +52,7 @@ export default function PickupDisplay() {
       <div className="px-8 py-6 flex items-center justify-between border-b border-slate-100">
         <div className="flex items-center gap-5">
           <div className="w-12 h-12 relative">
-            <Image src="/chantea-logo.png" alt="Chantea" fill className="object-contain" />
+            <Image src={sitePath("/chantea-logo.png")} alt="Chantea" fill className="object-contain" />
           </div>
           <div className="h-8 w-px bg-slate-200"></div>
           <div>

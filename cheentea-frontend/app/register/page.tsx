@@ -9,6 +9,7 @@ import { ArrowLeft, Gift, CheckCircle, AlertCircle, Loader2, User, Mail, AtSign,
 import Link from "next/link"
 import Image from "next/image"
 import { registerCustomer, resendVerificationEmail } from "@/lib/api"
+import { sitePath } from "@/lib/site-path"
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -97,7 +98,7 @@ export default function RegisterPage() {
                     <div className="flex items-center justify-center gap-4">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
                             <Image
-                                src="/chantea-logo.jpg"
+                                src={sitePath("/chantea-logo.jpg")}
                                 alt="Chantea Logo"
                                 fill
                                 className="object-cover"

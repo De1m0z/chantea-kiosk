@@ -11,6 +11,7 @@ import { QRCodeSVG } from "qrcode.react"
 import { lookupCustomerByUsername, getProducts, getModifierGroups } from "@/lib/api"
 import { Product, ProductSize, ModifierGroup, Modifier } from "@/lib/types"
 import { formatPrice, toNumber } from "@/lib/format"
+import { sitePath } from "@/lib/site-path"
 
 interface LoyaltyCustomer {
     username: string
@@ -295,7 +296,7 @@ export function LoyaltyModal({ open, onClose, onProceed, stampsToEarn }: Loyalty
 
                     <div className="relative flex items-center gap-6">
                         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-white overflow-hidden shrink-0">
-                            <img src="/chantea-logo.jpg" alt="Chantea" className="w-full h-full object-cover" />
+                            <img src={sitePath("/chantea-logo.jpg")} alt="Chantea" className="w-full h-full object-cover" />
                         </div>
                         <div>
                             <DialogTitle className="text-3xl font-serif font-bold text-white tracking-wide mb-1">

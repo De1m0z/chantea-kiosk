@@ -18,6 +18,7 @@ import { useCart } from "@/context/cart-context";
 import { formatPrice } from "@/lib/format";
 import Link from "next/link";
 import { useOrderTracking } from "@/hooks/useOrderTracking";
+import { sitePath } from "@/lib/site-path";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -57,7 +58,7 @@ function OrderConfirmation() {
         setOrderReady(true);
         // Play notification sound
         try {
-          const audio = new Audio("/notification.mp3");
+          const audio = new Audio(sitePath("/notification.mp3"));
           audio.play().catch(() => {});
         } catch {}
       }, []),

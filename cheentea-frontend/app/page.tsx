@@ -9,6 +9,7 @@ import { useCart } from "@/context/cart-context";
 import { VoiceOrderModal } from "@/components/voice-order-modal";
 import { getProducts } from "@/lib/api";
 import { Product } from "@/lib/types";
+import { sitePath } from "@/lib/site-path";
 import { useEffect, useState } from "react";
 
 export default function WelcomePage() {
@@ -75,7 +76,7 @@ export default function WelcomePage() {
                 <div className="flex flex-col items-center">
                   {/* Chantea Logo */}
                   <img
-                    src="/chantea-logo.png"
+                    src={sitePath("/chantea-logo.png")}
                     alt="Chantea"
                     className="h-72 md:h-96 lg:h-[500px] w-auto animate-in zoom-in-95 duration-1000"
                   />
@@ -189,7 +190,7 @@ export default function WelcomePage() {
                 <div className="w-64 h-64 bg-[#FFFCF5] rounded-[2rem] p-4 shadow-inner mb-6 border-2 border-dashed border-matcha/30 flex items-center justify-center relative group">
                   {/* Actual QR Code Image */}
                   <img
-                    src="/register-qr.png"
+                    src={sitePath("/register-qr.png")}
                     alt="Register for Loyalty"
                     className="w-full h-full object-contain mix-blend-multiply opacity-90 group-hover:scale-105 transition-transform duration-300"
                   />

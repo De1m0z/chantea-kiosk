@@ -19,6 +19,7 @@ import { useCart } from "@/context/cart-context";
 import { getProducts, getCategories, getModifierGroups } from "@/lib/api";
 import { Product, Category, ModifierGroup } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { sitePath } from "@/lib/site-path";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -120,7 +121,7 @@ export default function CheenteaMenu() {
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-lg">
               <Image
-                src="/chantea-logo.jpg"
+                src={sitePath("/chantea-logo.jpg")}
                 alt="Chantea Logo"
                 fill
                 className="object-cover"

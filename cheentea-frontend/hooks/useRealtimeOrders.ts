@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { getEcho } from '@/lib/echo'
+import type { getEcho as getEchoFactory } from '@/lib/echo'
 import { getAllOrders } from '@/lib/api'
 import { Order } from '@/lib/types'
+import { IS_DEMO_MODE, sitePath } from '@/lib/site-path'
 
 interface OrderCreatedEvent {
     order: Order
@@ -48,7 +49,7 @@ export function useRealtimeOrders(options: UseRealtimeOrdersOptions = {}) {
     // Initialize audio for notifications
     useEffect(() => {
         if (enableAudio && typeof window !== 'undefined') {
-            audioRef.current = new Audio('/notification.mp3')
+            audioRef.current = new Audio(sitePath('/notification.mp3'))
         }
     }, [enableAudio])
 
@@ -98,79 +99,95 @@ export function useRealtimeOrders(options: UseRealtimeOrdersOptions = {}) {
         // Initial fetch
         fetchOrders()
 
-        // Subscribe to orders channel
-        let channel: ReturnType<ReturnType<typeof getEcho>['channel']> | null = null
-
-        try {
-            const echo = getEcho()
-            channel = echo.channel('orders')
-
-            // --- Handlers ---
-
-            const handleOrderCreated = (event: OrderCreatedEvent) => {
-                console.log('[Realtime] Order created:', event.order.id)
-                const newOrder = event.order
-
-                // Check if order matches filter
-                if (!statusFilter || statusFilter.includes(newOrder.status)) {
-                    setOrders(prev => {
-                        // Avoid duplicates
-                        if (prev.some(o => o.id === newOrder.id)) return prev
-                        return [newOrder, ...prev]
-                    })
-                    if (enableAudio) playNotification()
-                }
-                onOrderCreated?.(newOrder)
-                // Fetch fresh data reasonably soon to ensure relations are full
-                fetchOrders()
-            }
-
-            const handleStatusUpdated = (event: OrderStatusUpdatedEvent) => {
-                console.log('[Realtime] Order status updated:', event.order.id, event.old_status, '->', event.new_status)
-                const updatedOrder = event.order
-
-                setOrders(prev => {
-                    const exists = prev.some(o => o.id === updatedOrder.id)
-
-                    if (exists) {
-                        // If order no longer matches filter, remove it
-                        if (statusFilter && !statusFilter.includes(updatedOrder.status)) {
-                            return prev.filter(o => o.id !== updatedOrder.id)
-                        }
-                        // Otherwise update it
-                        return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o)
-                    } else {
-                        // If order now matches filter, add it
-                        if (!statusFilter || statusFilter.includes(updatedOrder.status)) {
-                            return [updatedOrder, ...prev]
-                        }
-                    }
-                    return prev
-                })
-
-                if (enableAudio && event.new_status === 'ready') playNotification()
-                onStatusUpdated?.(updatedOrder, event.old_status, event.new_status)
-            }
-
-            // --- Listeners (Robustness against naming variations) ---
-            channel.listen('.order.created', handleOrderCreated)
-            channel.listen('order.created', handleOrderCreated)
-            channel.listen('OrderCreated', handleOrderCreated)
-
-            channel.listen('.order.status.updated', handleStatusUpdated)
-            channel.listen('order.status.updated', handleStatusUpdated)
-            channel.listen('OrderStatusUpdated', handleStatusUpdated)
-
+        if (IS_DEMO_MODE) {
             setConnected(true)
-            console.log('[Realtime] Connected to orders channel')
-
-        } catch (err) {
-            console.error('[Realtime] Failed to connect:', err)
-            setConnected(false)
-            // Fallback to polling if WebSocket fails
-            const pollInterval = setInterval(fetchOrders, 15000) // Poll every 15s if WS fails
+            const pollInterval = setInterval(fetchOrders, 15000)
             return () => clearInterval(pollInterval)
         }
+
+        let didCancel = false
+        let pollInterval: ReturnType<typeof setInterval> | null = null
+        let channel: ReturnType<ReturnType<typeof getEchoFactory>['channel']> | null = null
+        let leaveOrders: (() => void) | null = null
+
+        const setupRealtime = async () => {
+            try {
+                const { getEcho } = await import('@/lib/echo')
+                if (didCancel) return
+
+                const echo = getEcho()
+                channel = echo.channel('orders')
+                leaveOrders = () => echo.leave('orders')
+
+                // --- Handlers ---
+
+                const handleOrderCreated = (event: OrderCreatedEvent) => {
+                    console.log('[Realtime] Order created:', event.order.id)
+                    const newOrder = event.order
+
+                    // Check if order matches filter
+                    if (!statusFilter || statusFilter.includes(newOrder.status)) {
+                        setOrders(prev => {
+                            // Avoid duplicates
+                            if (prev.some(o => o.id === newOrder.id)) return prev
+                            return [newOrder, ...prev]
+                        })
+                        if (enableAudio) playNotification()
+                    }
+                    onOrderCreated?.(newOrder)
+                    // Fetch fresh data reasonably soon to ensure relations are full
+                    fetchOrders()
+                }
+
+                const handleStatusUpdated = (event: OrderStatusUpdatedEvent) => {
+                    console.log('[Realtime] Order status updated:', event.order.id, event.old_status, '->', event.new_status)
+                    const updatedOrder = event.order
+
+                    setOrders(prev => {
+                        const exists = prev.some(o => o.id === updatedOrder.id)
+
+                        if (exists) {
+                            // If order no longer matches filter, remove it
+                            if (statusFilter && !statusFilter.includes(updatedOrder.status)) {
+                                return prev.filter(o => o.id !== updatedOrder.id)
+                            }
+                            // Otherwise update it
+                            return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o)
+                        } else {
+                            // If order now matches filter, add it
+                            if (!statusFilter || statusFilter.includes(updatedOrder.status)) {
+                                return [updatedOrder, ...prev]
+                            }
+                        }
+                        return prev
+                    })
+
+                    if (enableAudio && event.new_status === 'ready') playNotification()
+                    onStatusUpdated?.(updatedOrder, event.old_status, event.new_status)
+                }
+
+                // --- Listeners (Robustness against naming variations) ---
+                channel.listen('.order.created', handleOrderCreated)
+                channel.listen('order.created', handleOrderCreated)
+                channel.listen('OrderCreated', handleOrderCreated)
+
+                channel.listen('.order.status.updated', handleStatusUpdated)
+                channel.listen('order.status.updated', handleStatusUpdated)
+                channel.listen('OrderStatusUpdated', handleStatusUpdated)
+
+                setConnected(true)
+                console.log('[Realtime] Connected to orders channel')
+
+            } catch (err) {
+                if (didCancel) return
+                console.error('[Realtime] Failed to connect:', err)
+                setConnected(false)
+                // Fallback to polling if WebSocket fails
+                pollInterval = setInterval(fetchOrders, 15000) // Poll every 15s if WS fails
+            }
+        }
+
+        setupRealtime()
 
         // Listen for visibility change to refetch when user comes back
         const handleVisibilityChange = () => {
@@ -183,7 +200,9 @@ export function useRealtimeOrders(options: UseRealtimeOrdersOptions = {}) {
 
         // Cleanup
         return () => {
+            didCancel = true
             document.removeEventListener('visibilitychange', handleVisibilityChange)
+            if (pollInterval) clearInterval(pollInterval)
             if (channel) {
                 channel.stopListening('.order.created')
                 channel.stopListening('order.created')
@@ -192,7 +211,7 @@ export function useRealtimeOrders(options: UseRealtimeOrdersOptions = {}) {
                 channel.stopListening('order.status.updated')
                 channel.stopListening('OrderStatusUpdated')
 
-                getEcho().leave('orders')
+                leaveOrders?.()
             }
         }
     }, [fetchOrders, statusFilter, enableAudio, playNotification, onOrderCreated, onStatusUpdated])

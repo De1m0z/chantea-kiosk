@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { getEcho } from '@/lib/echo'
+import { IS_DEMO_MODE } from '@/lib/site-path'
 
 /**
  * Hook to check if the WebSocket (Reverb) connection is active
@@ -12,11 +12,19 @@ export function useReverbStatus() {
     const [isChecking, setIsChecking] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    const checkConnection = useCallback(() => {
+    const checkConnection = useCallback(async () => {
+        if (IS_DEMO_MODE) {
+            setIsConnected(true)
+            setIsChecking(false)
+            setError(null)
+            return
+        }
+
         setIsChecking(true)
         setError(null)
 
         try {
+            const { getEcho } = await import('@/lib/echo')
             const echo = getEcho()
 
             // Try to subscribe to a test channel to verify connection

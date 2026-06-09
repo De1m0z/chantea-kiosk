@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { getEcho } from '@/lib/echo'
+import { useState, useEffect } from 'react'
+import type { getEcho as getEchoFactory } from '@/lib/echo'
+import { IS_DEMO_MODE } from '@/lib/site-path'
 
 interface OrderStatusUpdatedEvent {
     order: {
@@ -37,39 +38,72 @@ export function useOrderTracking(orderId: number | null, options: UseOrderTracki
     useEffect(() => {
         if (!orderId) return
 
-        let channel: ReturnType<ReturnType<typeof getEcho>['channel']> | null = null
-
-        try {
-            const echo = getEcho()
-
-            // Subscribe to the specific order channel
-            channel = echo.channel(`order.${orderId}`)
-
-            channel.listen('.order.status.updated', (event: OrderStatusUpdatedEvent) => {
-                console.log('[OrderTracking] Status updated:', event.order.id, event.new_status)
-
-                if (event.order.id === orderId) {
-                    setStatus(event.new_status)
-                    onStatusChange?.(event.new_status, event.old_status)
-
-                    if (event.new_status === 'ready') {
-                        onReady?.()
-                    }
-                }
-            })
-
+        if (IS_DEMO_MODE) {
             setConnected(true)
-            console.log(`[OrderTracking] Connected to order.${orderId} channel`)
-        } catch (err) {
-            console.error('[OrderTracking] Failed to connect:', err)
-            setConnected(false)
+            setStatus('pending')
+
+            const preparingTimer = setTimeout(() => {
+                setStatus('preparing')
+                onStatusChange?.('preparing', 'pending')
+            }, 4000)
+
+            const readyTimer = setTimeout(() => {
+                setStatus('ready')
+                onStatusChange?.('ready', 'preparing')
+                onReady?.()
+            }, 9000)
+
+            return () => {
+                clearTimeout(preparingTimer)
+                clearTimeout(readyTimer)
+            }
         }
+
+        let didCancel = false
+        let channel: ReturnType<ReturnType<typeof getEchoFactory>['channel']> | null = null
+        let leaveOrder: (() => void) | null = null
+
+        const setupTracking = async () => {
+            try {
+                const { getEcho } = await import('@/lib/echo')
+                if (didCancel) return
+
+                const echo = getEcho()
+
+                // Subscribe to the specific order channel
+                channel = echo.channel(`order.${orderId}`)
+                leaveOrder = () => echo.leave(`order.${orderId}`)
+
+                channel.listen('.order.status.updated', (event: OrderStatusUpdatedEvent) => {
+                    console.log('[OrderTracking] Status updated:', event.order.id, event.new_status)
+
+                    if (event.order.id === orderId) {
+                        setStatus(event.new_status)
+                        onStatusChange?.(event.new_status, event.old_status)
+
+                        if (event.new_status === 'ready') {
+                            onReady?.()
+                        }
+                    }
+                })
+
+                setConnected(true)
+                console.log(`[OrderTracking] Connected to order.${orderId} channel`)
+            } catch (err) {
+                if (didCancel) return
+                console.error('[OrderTracking] Failed to connect:', err)
+                setConnected(false)
+            }
+        }
+
+        setupTracking()
 
         // Cleanup
         return () => {
+            didCancel = true
             if (channel) {
                 channel.stopListening('.order.status.updated')
-                getEcho().leave(`order.${orderId}`)
+                leaveOrder?.()
             }
         }
     }, [orderId, onStatusChange, onReady])

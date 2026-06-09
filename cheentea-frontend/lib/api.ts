@@ -7,6 +7,8 @@ import {
   Order,
   Customer,
 } from "./types";
+import { IS_DEMO_MODE } from "./site-path";
+import { demoFetchApi, demoResendVerificationEmail, demoUploadImage } from "./demo-api";
 
 // API Base URL - set NEXT_PUBLIC_API_URL in .env.local to override
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost/api/v1";
@@ -15,6 +17,10 @@ async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit,
 ): Promise<T> {
+  if (IS_DEMO_MODE) {
+    return demoFetchApi<T>(endpoint, options);
+  }
+
   const url = `${API_BASE}${endpoint}`;
   console.log(`Fetching: ${url}`, options?.body);
 
@@ -176,6 +182,10 @@ export async function uploadProductImage(
   productId: number,
   imageFile: File,
 ): Promise<{ image_url: string }> {
+  if (IS_DEMO_MODE) {
+    return demoUploadImage();
+  }
+
   const formData = new FormData();
   formData.append("image", imageFile);
 
@@ -203,6 +213,10 @@ export async function uploadCategoryImage(
   categoryId: number,
   imageFile: File,
 ): Promise<{ image_url: string }> {
+  if (IS_DEMO_MODE) {
+    return demoUploadImage();
+  }
+
   const formData = new FormData();
   formData.append("image", imageFile);
 
@@ -220,12 +234,16 @@ export async function uploadCategoryImage(
 }
 
 export async function deleteProductImage(productId: number): Promise<void> {
+  if (IS_DEMO_MODE) return;
+
   await fetchApi<ApiResponse<null>>(`/products/${productId}/image`, {
     method: "DELETE",
   });
 }
 
 export async function deleteCategoryImage(categoryId: number): Promise<void> {
+  if (IS_DEMO_MODE) return;
+
   await fetchApi<ApiResponse<null>>(`/categories/${categoryId}/image`, {
     method: "DELETE",
   });
@@ -544,6 +562,10 @@ export async function registerCustomer(data: {
 export async function resendVerificationEmail(
   email: string,
 ): Promise<{ message: string }> {
+  if (IS_DEMO_MODE) {
+    return demoResendVerificationEmail();
+  }
+
   // Use base URL without /v1 prefix for email routes
   const baseUrl = (
     process.env.NEXT_PUBLIC_API_URL || "http://localhost/api"
