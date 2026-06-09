@@ -1,0 +1,9 @@
+1:"$Sreact.fragment"
+2:I[47257,["/chantea-kiosk/_next/static/chunks/ff1a16fafef87110.js","/chantea-kiosk/_next/static/chunks/1a476e30dee46234.js"],"ClientPageRoot"]
+3:I[16127,["/chantea-kiosk/_next/static/chunks/fe51cdc0ce68c9ae.js","/chantea-kiosk/_next/static/chunks/eadde32f21f3e668.js","/chantea-kiosk/_next/static/chunks/9e8491fbcf84a287.js","/chantea-kiosk/_next/static/chunks/1b6737818a4f5ab0.js","/chantea-kiosk/_next/static/chunks/43f3e20a7c16247b.js"],"default"]
+6:I[97367,["/chantea-kiosk/_next/static/chunks/ff1a16fafef87110.js","/chantea-kiosk/_next/static/chunks/1a476e30dee46234.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+0:{"buildId":"BeeEV3fJyvqYInM2HDaaa","rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/chantea-kiosk/_next/static/chunks/1b6737818a4f5ab0.js","async":true}],["$","script","script-1",{"src":"/chantea-kiosk/_next/static/chunks/43f3e20a7c16247b.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"loading":null,"isPartial":false}
+4:{}
+5:{}
+8:null
