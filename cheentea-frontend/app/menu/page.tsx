@@ -11,7 +11,6 @@ import {
   Search,
   ChevronRight,
   Mic,
-  AudioLines,
 } from "lucide-react";
 import { ProductCustomizationModal } from "@/components/product-customization-modal";
 import { VoiceOrderModal } from "@/components/voice-order-modal";
@@ -266,71 +265,6 @@ export default function CheenteaMenu() {
             </div>
           ) : (
             <div className="max-w-7xl mx-auto pb-32 space-y-16">
-              {/* Voice Order Banner - prominent CTA above menu */}
-              {selectedCategory === "All" && !searchQuery && (
-                <button
-                  onClick={() => setIsVoiceModalOpen(true)}
-                  className="w-full group relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-espresso via-espresso to-[#4E342E] shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-[0.99] transition-all duration-300 border border-white/10"
-                >
-                  {/* Subtle dot pattern */}
-                  <div
-                    className="absolute inset-0 opacity-[0.06]"
-                    style={{
-                      backgroundImage:
-                        "radial-gradient(circle, #fff 1px, transparent 1px)",
-                      backgroundSize: "14px 14px",
-                    }}
-                  />
-                  {/* Matcha accent glow */}
-                  <div className="absolute -right-10 -top-10 w-56 h-56 bg-matcha/20 rounded-full blur-3xl" />
-                  <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-matcha/10 rounded-full blur-3xl" />
-
-                  <div className="relative flex items-center gap-8 p-8 md:p-10">
-                    {/* Mic icon with pulse ring */}
-                    <div className="relative flex-shrink-0">
-                      <div
-                        className="absolute inset-0 rounded-full bg-matcha/30 animate-ping"
-                        style={{ animationDuration: "2s" }}
-                      />
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-matcha rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 border-4 border-matcha/30">
-                        <Mic className="w-9 h-9 md:w-11 md:h-11 text-white" />
-                      </div>
-                    </div>
-
-                    {/* Text */}
-                    <div className="flex-1 text-left">
-                      <h2 className="font-serif font-black text-3xl md:text-4xl text-white mb-1 leading-tight">
-                        Order by Voice
-                      </h2>
-                      <p className="text-white/70 text-base md:text-lg font-medium">
-                        Just say what you'd like to order
-                      </p>
-                    </div>
-
-                    {/* Decorative sound bars */}
-                    <div className="hidden md:flex items-end gap-1.5 h-12 mr-2">
-                      {[0.4, 0.7, 1, 0.6, 0.85, 0.5, 0.9].map((h, i) => (
-                        <div
-                          key={i}
-                          className="w-2 bg-matcha/60 rounded-full group-hover:bg-matcha transition-colors"
-                          style={{
-                            height: `${h * 100}%`,
-                            animation:
-                              "voiceBars 1.2s ease-in-out infinite alternate",
-                            animationDelay: `${i * 0.1}s`,
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Arrow */}
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-matcha/30 transition-colors">
-                      <ChevronRight className="w-6 h-6 text-white/70 group-hover:text-white transition-colors" />
-                    </div>
-                  </div>
-                </button>
-              )}
-
               {/* Discover our Menu Section - hide when searching */}
               {selectedCategory === "All" && !searchQuery && (
                 <div className="mb-12">
